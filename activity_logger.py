@@ -8,19 +8,22 @@ from datetime import datetime
 
 def _get_users(url):
     get_url = url + "/api/activities/"
-    r = requests.get(get_url)
-    if r.status_code == 200:
-        print(f"Get activities SUCCESS at {get_url}")
-        activities = json.loads(r.text)
-        single_activity_id = activities["activities"][0]["id"]
-        r = requests.get(get_url + str(single_activity_id))
+    try:
+        r = requests.get(get_url)
         if r.status_code == 200:
-            print(f"    Get single activity {single_activity_id} SUCCESS")
-            print(json.loads(r.text))
+            print(f"Get activities SUCCESS at {get_url}")
+            activities = json.loads(r.text)
+            single_activity_id = activities["activities"][0]["id"]
+            r = requests.get(get_url + str(single_activity_id))
+            if r.status_code == 200:
+                print(f"    Get single activity {single_activity_id} SUCCESS")
+                print(json.loads(r.text))
+            else:
+                print(f"Get single activity FAILURE: {r.text}")
         else:
-            print(f"Get single activity FAILURE: {r.text}")
-    else:
-        print(f"Get activities FAILURE: {r.text}")
+            print(f"Get activities FAILURE: {r.text}")
+    except requests.exceptions.RequestException:
+        print(f"Could not connect to activity log service at {url}")
 
 
 def _new_user(url):
@@ -31,12 +34,15 @@ def _new_user(url):
         "timestamp": str(datetime.utcnow()),
         "details": "Paul is alive",
     }
-    r = requests.post(post_url, json=new_activity)
-    if r.status_code == 200:
-        print(f"Post new activity SUCCESS at {post_url}")
-        print(json.loads(r.text))
-    else:
-        print(f"Post new activity FAILURE: {r.text}")
+    try:
+        r = requests.post(post_url, json=new_activity)
+        if r.status_code == 201:
+            print(f"Post new activity SUCCESS at {post_url}")
+            print(json.loads(r.text))
+        else:
+            print(f"Post new activity FAILURE: {r.text}")
+    except requests.exceptions.RequestException:
+        print(f"Could not connect to activity log service at {url}")
 
 
 @click.command()
