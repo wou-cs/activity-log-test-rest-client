@@ -7,7 +7,7 @@ from datetime import datetime
 
 
 def _get_users(url):
-    get_url = url + "/api/activities/"
+    get_url = url + "/api/activities"
     try:
         r = requests.get(get_url)
         if r.status_code == 200:
@@ -17,21 +17,11 @@ def _get_users(url):
             if isinstance(activities, dict):
                 if "activities" in activities:
                     single_activity_id = activities["activities"][0]["id"]
-                elif "activity_log" in activities:
-                    single_activity_id = activities["activity_log"][0]["id"]
-                elif "Activity_Log" in activities:
-                    single_activity_id = activities["Activity_Log"][0]["id"]
-                elif "activityLog" in activities:
-                    single_activity_id = activities["activityLog"][0]["id"]
-                elif "users" in activities:
-                    single_activity_id = activities["users"][0]["id"]
                 else:
-                    single_activity_id = activities["activitylog"][0]["id"]
-            elif isinstance(activities, list):
-                single_activity_id = activities[0]["id"]
+                    print("Error: JSON did not have a top level element: activities")
             else:
-                print("Error: JSON returned from Get neither list nor dict")
-            r = requests.get(get_url + str(single_activity_id))
+                print("Error: JSON returned not a dictionary")
+            r = requests.get(f"{get_url}/{single_activity_id}")
             if r.status_code == 200:
                 print(f"    Get single activity {single_activity_id} SUCCESS")
                 print(json.loads(r.text))
@@ -53,7 +43,7 @@ def _new_user(url):
     }
     try:
         r = requests.post(post_url, json=new_activity)
-        if r.status_code == 201 or 200:
+        if r.status_code == 201:
             print(f"Post new activity SUCCESS at {post_url}")
             print(r.text)
             print(json.loads(r.text))
@@ -74,8 +64,8 @@ def _new_user(url):
 def activity_logger(url, sleep):
 
     while True:
-        _get_users(url)
         _new_user(url)
+        _get_users(url)
         time.sleep(sleep)
 
 

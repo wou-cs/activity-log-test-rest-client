@@ -4,7 +4,7 @@ To run this client, do the following:
 
 1. Create your environment and enter the shell:
     ```sh
-    $ pipenv install --three
+    $ pipenv install -d
     $ pipenv shell
     ```
 2. Make the activity_logger.py executable:
